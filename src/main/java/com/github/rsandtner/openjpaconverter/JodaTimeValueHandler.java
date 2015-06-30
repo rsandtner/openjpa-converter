@@ -30,10 +30,10 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class JodaTimeValueHandler extends AbstractValueHandler
 {
-
 
     public Column[] map(ValueMapping valueMapping, String name, ColumnIO columnIO, boolean b)
     {
@@ -79,15 +79,15 @@ public class JodaTimeValueHandler extends AbstractValueHandler
     {
         if (vm.getType() == LocalTime.class)
         {
-            return new LocalTime(val);
+            return LocalTime.fromDateFields((Date) val);
         }
         else if (vm.getType() == LocalDate.class)
         {
-            return new LocalDate(val);
+            return LocalDate.fromDateFields((Date) val);
         }
         else if (vm.getType() == LocalDateTime.class)
         {
-            return new LocalDateTime(val);
+            return LocalDateTime.fromCalendarFields((Calendar) val);
         }
 
         throw new IllegalStateException("only LocalTime, LocalDate and LocalDateTime can be handled with this ValueHandler");

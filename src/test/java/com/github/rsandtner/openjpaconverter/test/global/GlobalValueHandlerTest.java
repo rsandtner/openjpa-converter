@@ -22,6 +22,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.persistence.EntityManager;
@@ -31,12 +32,17 @@ import java.util.List;
 
 public class GlobalValueHandlerTest
 {
+    private static EntityManagerFactory emf;
 
-    @Test(groups = "broken")
+    @BeforeClass
+    public static void setup()
+    {
+        emf = Persistence.createEntityManagerFactory("GLOBAL_PU");
+    }
+
+    @Test
     public void testWithDeclarationInPersistenceXML()
     {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("GLOBAL_PU");
-
         {
             EntityManager em = emf.createEntityManager();
 
@@ -58,4 +64,51 @@ public class GlobalValueHandlerTest
             Assert.assertFalse(result.isEmpty());
         }
     }
+
+    @Test
+    public void testDeclarationInPersistenceXML_addQueryParameter()
+    {
+        GlobalValueHandlerEntity theOneChecked = null;
+
+        // first setup data
+        {
+            EntityManager em = emf.createEntityManager();
+
+            em.getTransaction().begin();
+
+            for (int i = 0; i < 100; i++)
+            {
+                GlobalValueHandlerEntity entity = new GlobalValueHandlerEntity("Global" + i,
+                                                                               LocalDate.now().plusDays(i),
+                                                                               LocalDateTime.now().plusDays(i),
+                                                                               LocalTime.now().plusMinutes(i));
+                em.persist(entity);
+
+                if (i == 40)
+                {
+                    theOneChecked = entity;
+                }
+            }
+
+            em.getTransaction().commit();
+            em.close();
+        }
+
+        {
+            EntityManager em = emf.createEntityManager();
+
+            List<GlobalValueHandlerEntity> results = em.createQuery("SELECT g FROM GlobalValueHandlerEntity AS g WHERE g.localDate = :date", GlobalValueHandlerEntity.class)
+                                                    .setParameter("date", theOneChecked.getLocalDate())
+                                                    .getResultList();
+            Assert.assertEquals(results.size(), 1);
+
+            GlobalValueHandlerEntity acutal = results.get(0);
+            Assert.assertEquals(acutal.getId(), theOneChecked.getId());
+            Assert.assertEquals(acutal.getLocalDate(), theOneChecked.getLocalDate());
+            Assert.assertEquals(acutal.getLocalDateTime(), theOneChecked.getLocalDateTime());
+            Assert.assertEquals(acutal.getLocalTime(), theOneChecked.getLocalTime());
+            Assert.assertEquals(acutal.getName(), theOneChecked.getName());
+        }
+    }
+
 }

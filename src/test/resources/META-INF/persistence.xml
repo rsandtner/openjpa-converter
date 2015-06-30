@@ -57,7 +57,10 @@
             <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
 
             <property name="openjpa.PostLoadOnMerge" value="true"/>
-            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict, FieldStrategies='org.joda.time.LocalDate=com.github.rsandtner.openjpaconverter.JodaTimeValueHandler'"/>
+            <property name="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict,
+                            FieldStrategies='org.joda.time.LocalDate=com.github.rsandtner.openjpaconverter.JodaTimeValueHandler,
+                                             org.joda.time.LocalDateTime=com.github.rsandtner.openjpaconverter.JodaTimeValueHandler,
+                                             org.joda.time.LocalTime=com.github.rsandtner.openjpaconverter.JodaTimeValueHandler'"/>
 
             <!-- enable trace-log -->
             <property name="openjpa.Log" value="DefaultLevel=INFO,SQL=TRACE" />
